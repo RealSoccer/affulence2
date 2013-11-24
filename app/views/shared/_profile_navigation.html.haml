@@ -1,0 +1,57 @@
+
+.span3
+  %div
+    .member-div
+      %a.image-a-link
+        = image_tag display_image(@profile.nil? ? current_user.profile.photos : @profile.photos, :medium)
+        - if (@profile.nil? ? current_user.verified? : @profile.user.verified?)
+          %span.image-link-span
+  .well
+    %ul.nav.nav-list
+      %li.nav-header Socialize
+      %li{:class => "#{params[:controller] == "home" ? "active":""}"}
+        %a{:href => "/home"}
+          %i.icon-star>
+          What's New
+      %li{:class => "#{'active' if profiles?}"}
+        %a{:href => "#{profile_path(current_user.permalink)}"}
+          %i.icon-home>
+          Profile
+      %li{:class => "#{(params[:controller] == 'photo_streams') ? 'active':''}"}
+        %a{:href => "#{user_photo_streams_path(current_user.permalink)}"}
+          %i.icon-picture>
+          Photo Stream
+      %li{:class => "#{(params[:controller] == 'members') ? 'active':''}"}
+        %a{:href => "#{search_members_path}"}
+          %i.icon-user>
+          Members
+      %li{:class => "#{(params[:controller] == 'discussions') ? 'active':''}"}
+        %a{:href => "#{discussions_path}"}
+          %i.icon-comment>
+          Discussions
+      %li{:class => "#{(params[:controller] == 'conversations') ? 'active':''}"}
+        %a{:href => "#{user_conversations_path(current_user)}"}
+          %i.icon-inbox>
+          Messages
+          - if (unread_messages_count > 0)
+            %span{:class => "label label-important"}
+              = unread_messages_count
+      %li
+        %a{:href => "#"}   
+          %i.icon-glass>
+          Concierge
+      %li{:class => "#{(params[:controller] == 'invitations') ? 'active':''}"}
+        %a{:href => "#{new_user_invitation_path}"}
+          %i.icon-envelope>
+          Invites
+  / side bar nav
+  %div
+    = form_for(Concierge.new, :url => call_concierge_path(Concierge.get_latest_config), :html => {:class => 'well'}) do |f|
+      %h3 Call Concierge
+      %hr.zero
+        %input.span2{:value => current_user.profile.phone, :type => "text", :name => 'phone_number'}
+          %span.help-inline Press Call and Your Phone will Ring
+          %button.btn.btn-primary{:type => "submit"} Call Concierge
+          %br/
+  / concierge
+/ span3

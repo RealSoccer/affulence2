@@ -1,0 +1,168 @@
+- href_link = current_user.plan == 'free' ? true : false
+.row
+  .span3
+    .well
+      %ul.nav.nav-list
+        %li.nav-header Filter
+        %li.active
+          %a{:href => "#featured"}
+            %i.icon-adjust>
+            Featured
+        %li
+          %a{:href => "#travel"}
+            %i.icon-plane>
+            Travel
+        %li
+          %a{:href => "#services"}
+            %i.icon-cog>
+            Services
+        %li
+          %a{:href => "#financial"}
+            %i.icon-lock>
+            Financial
+        %li
+          %a{:href => "#shopping"}
+            %i.icon-shopping-cart>
+            Shopping
+        %li
+          %a{:href => "#dinning"}
+            %i.icon-leaf>
+            Dinning
+  / span3
+  .span9
+    #featured
+      %h2 Featured Offers
+      %hr.zero
+        %ul.thumbnails
+          - if @featured_offers.length >= 1
+            - @featured_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..." #activate_offer_path(offer.id)
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+        %ul.thumbnails
+          - if @featured_offers.length > 3
+            - @featured_offers[3..5].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Featured
+    #travel
+      %h2 Travel
+      %hr.zero
+        %ul.thumbnails
+          - if @travel_offers.length >= 1
+            - @travel_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Travel
+    #services
+      %h2 Services
+      %hr.zero
+        %ul.thumbnails
+          - if @services_offers.length >= 1
+            - @services_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Services
+    #financial
+      %h2 Financial
+      %hr.zero
+        %ul.thumbnails
+          - if @financial_offers.length >= 1
+            - @financial_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Financial
+    #shopping
+      %h2 Shopping
+      %hr.zero
+        %ul.thumbnails
+          - if @shopping_offers.length >= 1
+            - @shopping_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Shopping
+    #dinning
+      %h2 Dinning
+      %hr.zero
+        %ul.thumbnails
+          - if @dinning_offers.length >= 1
+            - @dinning_offers[0..2].each do |offer|
+              %li.span3
+                .thumbnail
+                  = image_tag offer.promotion.offer_image.image.url(:medium)
+                  .caption
+                    %h5= "#{offer.title[0..30]}"
+                    %p= "#{offer.description[0..48]}..."
+                    %p
+                      %a.btn.btn-info{"data-toggle" => "modal", :href => offer_activation_link(current_user,offer), :id => "offer_#{offer.id}", :class => "offer-register-button"}
+                        %i.icon-ok.icon-white
+                        Activate
+    / Dinning
+  / span9
+- if current_user.plan == 'free'
+  = render :partial => 'shared/billing_info', :locals => {:div_id => 'billing_info' , :callback_url => confirm_offers_url}
+  :javascript
+    $('.offer-register-button').click(function(){
+      var offer_id = this.id.split('_')[1]
+      //alert(event_id) ;
+      $.ajax({
+                    url: "/promotions/"+offer_id+"/become_premium_member",
+                    data:'promotion=offer',
+                    //async: false,
+                    success:function(data){
+                      $('#billing_info').html(data);
+                      //alert('Load was performed.');
+                    },
+                    dataType:'html'
+                    });
+      //$('#register-div').modal('show');
+    });
+- content_for :javascript
+

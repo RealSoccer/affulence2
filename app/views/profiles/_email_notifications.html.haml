@@ -1,0 +1,54 @@
+.accordion-group
+  .accordion-heading
+    %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseThree"}
+      %h3 Email Notifications
+  #collapseThree.accordion-body.collapse{:style => "height: 0px; "}
+    .accordion-inner
+      #notifications
+        %table.table.table-bordered.table-striped
+          %tbody
+            %tr
+              %td Newsletter
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.newsletter ? 'active':''}", :name => 'newsletter', :value => 'true'} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.newsletter ? '':'active'}", :name => 'newsletter', :value => 'false'} Off
+            %tr
+              %td New Events
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.events ? 'active':''}", :name => 'events', :value => 'true'} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.events ? '':'active'}", :name => 'events', :value => 'false'} Off
+            %tr
+              %td New Offers
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.offers ? 'active':''}", :name => 'offers', :value => 'true'} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.offers ? '':'active'}", :name => 'offers', :value => 'false'} Off
+            %tr
+              %td New Messages
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.messages ? 'active':''}", :name => 'messages', :value => 'true'} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.messages ? '':'active'}", :name => 'messages', :value => 'false'} Off
+            %tr
+              %td Event Reminders
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.event_reminders ? 'active':''}", :name => 'event_reminders', :value => 'true'} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.event_reminders ? '':'active'}", :name => 'event_reminders', :value => 'false'} Off
+            %tr
+              %td Site News
+              %td
+                .btn-group{"data-toggle" => "buttons-radio"}
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.site_news ? 'active':''}", :name => 'site_news', :value => true} On
+                  %button.btn.btn-primary{:class => "#{current_user.profile.notification_setting.site_news ? '':'active'}", :name => 'site_news', :value => 'false'} Off
+            %tr
+              %td
+              %td
+                %p
+                  %em You will receive email receipts for all purchases made on the site including events and membership dues.
+      / notifications
+    / accordion-inner
+  / accordion-body
+/ accordion-group

@@ -1,0 +1,111 @@
+
+-content_for :event_ending_info do
+  .span12
+    %span.pull-right
+      %i.icon-time
+      %strong SALE ENDS
+      %em= global_date_format(@event.sale_ends_at)
+
+.row
+  - if @event.has_gallery?
+    .span6
+      .well
+        = event_image(@event.promotion,:carousel) #display_image(@event.promotion.photos,'carousel')
+
+        %hr
+          .row
+            - @event.promotion.photos.each do |photo|
+              .span1
+                = image_tag photo.image
+  - else
+    = render :partial => "events_gallery"
+  / span6 images
+  .span6
+    %h1= @event.title
+    %p= @event.description
+    /
+      Tabs
+      \==================================================
+    %ul#tab.nav.nav-tabs
+      %li.active
+        %a{"data-toggle" => "tab", :href => "#includes"} Includes
+      %li
+        %a{"data-toggle" => "tab", :href => "#schedule"} Schedule
+    #myTabContent.tab-content
+      #includes.tab-pane.active
+        %ul
+          - @event.includes.each do |include|
+            %li= include.title
+      / includes
+      #schedule.tab-pane
+        %table.table.table-striped
+          %thead
+            %tr
+              %th Date
+              %th Time
+              %th Description
+          %tbody
+            - @event.schedules.each do |schedule|
+              %tr
+                %td= global_date_format(schedule.date)
+                %td= global_time_format(schedule.date)
+                %td= schedule.title
+      / schedule
+    / tab-content
+    %div
+      - if !@event.promotion.unique_registered_members.blank?
+        %h3 #{@event.promotion.unique_registered_members.to_a.size} Members Attending
+        %hr.zero
+          %ul.thumbnails
+            - @event.promotion.unique_registered_members.each do |registered_member|
+              - @total = registered_member.sum
+              = render :partial => 'shared/member', :locals => {:member => registered_member.user} unless registered_member.user.nil?
+      - else
+        %h3 0 Members Attending
+        %hr.zero
+    - event_div_id = (current_user.plan == 'free' ? 'register-div' : "event#{@event.id}-register")
+    .row
+      .span2
+        - unless (@event.tickets == 0)
+          %p
+            %a.btn.btn-large.btn-success{"data-toggle" => "modal", :href => "##{event_div_id}", :id => "event_#{@event.id}", :class => "event-register-button"}
+              %i.icon-pencil.icon-white
+              Register
+        - else
+          %p
+            %em All tickets sold out
+      .span2
+        %h4 $ #{@event.price}
+        %i.icon-tags
+        %strong= @event.tickets_remaining
+        %em Remaining
+
+
+  / Register Modal
+  - unless (@event.tickets == 0)
+    = render :partial => 'event_registration', :locals => {:event => @event, :display_free_modal => true,:event_div_id => event_div_id}
+
+- if current_user.plan == 'free'
+  :javascript
+    $('.event-register-button').click(function(){
+      var event_id = this.id.split('_')[1]
+      //alert(event_id) ;
+      $.ajax({
+                    url: "/promotions/"+event_id+"/become_premium_member",
+                    data:'promotion=event',
+                    //async: false,
+                    success:function(data){
+                      $('#register-div').html(data);
+                      //alert('Load was performed.');
+                    },
+                    dataType:'html'
+                    });
+      //$('#register-div').modal('show');
+    });
+
+:javascript
+  $(function () {
+  $('a[rel=tooltip]').tooltip({
+  	live: true
+  })
+  })

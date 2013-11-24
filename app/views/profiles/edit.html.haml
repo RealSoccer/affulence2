@@ -1,0 +1,47 @@
+= render 'shared/settings'
+.span9
+  #accordion2.accordion
+    = render 'shared/error_messages', :target => @profile
+    = render "shared/error_messages", :target => @user
+    = render "shared/braintree_error_messages", :target => @result
+    = render 'profile'
+    = render 'billing'
+    = render 'email_notifications'
+    = render 'change_password'
+    %p{:style=>"margin-top:50px;float:right;"}
+      = link_to 'Delete My Account', delete_account_profiles_path, :confirm => "Are you sure, that you want to delete your account?",:class => "btn btn-primary"
+- content_for :accordion do
+  :javascript
+    $(function() {
+    $('#notifications td button').click(function(){
+      if(!$(this).hasClass('active')){
+        $.get("#{update_notifications_profiles_path}",
+          { name: $(this).attr('name'), value: $(this).val()},
+          function(data) {
+            $("#profile_state").html('');
+            console.debug(  "disabled"  );
+
+          });
+      }
+    });
+      $("#settings li").click(function(e){
+        console.debug($(this).children('a'));
+        if($(this).children('a').data("parent")==="#accordion2") { console.debug($(this).children('a'));e.preventDefault();}
+
+        $("#settings li").removeClass("active");
+        $(this).addClass("active");
+      });
+      $(".accordion-group").click(function(e){
+        console.debug($(this).index());
+
+        $("#settings li").removeClass("active");
+         $("#settings li").eq($(this).index()+1).addClass("active");
+      });
+
+      var clicked = "#{account_settings_menu_clicked}";
+      $('#settings li').eq(clicked).addClass('active');
+      if (clicked != 1) {
+        $('#settings li:eq('+clicked+') a').click();
+      }
+
+    });

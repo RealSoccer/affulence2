@@ -1,0 +1,17 @@
+.span9 
+  .row
+    .span5
+      %h2 Activities
+
+  / row
+  %table.table.table-striped
+    %thead
+      %tr
+        %th 
+        %th 
+        %th
+    %tbody
+      = render :partial => 'latest', :object => @latest_activities
+  .row
+    .span{:style => "float:left;"}
+      = paginate @latest_activities, theme: "bootstrap"

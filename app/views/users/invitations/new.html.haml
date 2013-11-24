@@ -1,0 +1,100 @@
+
+.span9
+  .row
+    .span6
+      %h2
+        Invite Friends
+        %small Earn Credit
+      %hr.zero
+        %p
+          %em For every new member you have sign up, Affluence will credit your account 1 month of free membership.
+    .span3
+      .well
+        %h6 Credits Earned
+        %hr.zero
+          %h3
+            = "#{current_user.points.to_s} Free Months"
+  / row
+  .tabbable
+    %ul.nav.nav-tabs
+      %li.active
+        %a{"data-toggle" => "tab", :href => "#lA"} Send Multiple
+      %li#single-invite
+        %a{"data-toggle" => "tab", :href => "#lB"} Invite by Email 
+      %li
+        %a{"data-toggle" => "tab", :href => "#lC"} Invite History
+    .tab-content
+      #lA.tab-pane.active
+        = form_tag(get_contacts_path, :method => :get, :id => "contacts") do
+          = hidden_field_tag "provider"
+          #lA.tab-pane.active
+            .span2.well
+              %h6 Gmail
+              %hr.zero
+                %p
+                  = button_tag "Import", :class => "btn btn-primary import", :id => "google"
+            .span2.well
+              %h6 Yahoo
+              %hr.zero
+                %p
+                  = button_tag "Import", :class => "btn btn-primary import", :id => "yahoo"
+            .span2.well
+              %h6 MSN
+              %hr.zero
+                %p
+                  = button_tag "Import", :class => "btn btn-primary import", :id => "msn"
+
+
+
+ 
+
+      / lA
+      #lB.tab-pane
+        = form_for resource, :as => resource_name, :url => invitation_path(resource_name), :html => {:class => "form-horizontal", :method => :post} do |f|
+          = devise_error_messages!
+          %fieldset
+            .control-group
+              %label.control-label{:for => "input01"} To:
+              .controls
+                = text_field_tag "user[emails]", nil, :class => "input-xlarge"
+                %p.help-block Add multiple Emails separated by a comma 
+            .control-group
+              %label.control-label{:for => "textarea"} Textarea
+              .controls
+                = text_area_tag "user[invitation_email_body]", nil, :id => "textarea", :class => "input span6", :placeholder => "You have been invited to join the exclusive network Affluence by Blake Macleod.  To accept this invitation click here.", :rows => "5"
+          .form-actions
+            = f.submit t("devise.invitations.new.submit_button"), :class => "btn btn-primary"
+
+      / lB
+      #lC.tab-pane
+        %table.table.table-striped
+          %thead
+            %tr
+              %th #
+              %th Date
+              %th To
+              %th Status
+          %tbody
+            - @invited_users.each_with_index do |x, i|
+              %tr
+                %td= i + 1
+                %td= time_ago_in_words(x.created_at) + " ago"
+                %td= x.email
+                %td
+                  %i.icon-green{:class => "#{get_invitation_status_icon(x.status)}"}
+                  = x.get_status
+      / lC
+    / tab-content
+  / tabbable
+:javascript
+  $(function(){
+    $('.import').click(function(){
+      $("#provider").val($(this).attr('id'));
+    });  
+
+    if(#{params[:temp].nil? ? 'false' : params[:temp]}) {
+      $('#user_email').addClass('error');
+      $('#single-invite a').click();
+    }
+
+  });

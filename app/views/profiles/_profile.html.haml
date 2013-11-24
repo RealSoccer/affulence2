@@ -1,0 +1,135 @@
+.accordion-group
+  .accordion-heading
+    %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseOne" }
+      %h3 Profile Info
+  / according-heading
+  #collapseOne.accordion-body.in{:style => "height: auto; "}
+    .accordion-inner
+      #profile
+        = form_for @profile, :html => { :class => "form-horizontal" } do |f|
+          %fieldset
+            .control-group
+              %label.control-label{:for => "fileInput"} Profile Picture
+              .controls
+                = f.fields_for :photos, :html => { :multipart => true } do |x|
+                  = x.file_field :image, :class => 'input-file', :id => 'fileInput'
+                  = x.hidden_field :photoable_type
+  
+            %hr
+              .control-group
+                %label.control-label{:for => "input01"} Name
+                .controls
+                  = f.text_field :first_name, :placeholder => "First", :class => "input span2"
+                  = f.text_field :middle_name, :placeholder => "Middle (optional)", :class => "input span2"
+                  = f.text_field :last_name, :placeholder => "Last", :class => "input span2"
+              .control-group
+                %label.control-label{:for => "input04"} Email
+                .controls
+                  = current_user.email
+              .control-group
+                %label.control-label{:for => "input05"} Phone #
+                .controls
+                  = f.text_field :phone, :placeholder => "773-336-2323", :class => "input span3"
+              .control-group
+                %label.control-label{:for => "select01"} Location
+                .controls
+                  = f.select :country, Carmen.countries, {}, { :class => 'span2'}
+                  = f.select :state, states_of(current_user.profile.country), {}, { :class => 'span2'}
+                  = f.text_field :city, :placeholder => "City", :class => "input span2"
+              .control-group
+                %label.control-label{:for => "input03"} Work
+                .controls
+                  = f.text_field :title, :placeholder => "Title", :class => "input span2"
+                  = f.text_field :company, :placeholder => "Company", :class => "input span2"
+              %hr
+                .control-group
+                  %label.control-label{:for => "textarea"} Bio
+                  .controls
+                    = f.text_area :bio, :rows => "8", :class => "input span6"
+                %hr
+                  .control-group
+                    %label.control-label{:for => "textarea"} Associations
+                    .controls
+                      = f.text_area :association_list, :rows => '3', :class => '.input-xlarge ui-autocomplete-input', "data-url" => "#{autocomplete_association_name_profiles_path}"
+                      %p.help-block Associations are comma seperated.
+                  .control-group
+                    %label.control-label{:for => "textarea"} Interests
+                    .controls
+                      = f.text_area :interest_list, :rows => '3', :class => '.input-xlarge ui-autocomplete-input', "data-url" => "#{autocomplete_interest_name_profiles_path}"
+                      %p.help-block Interests are comma seperated.
+                  .control-group
+                    %label.control-label{:for => "textarea"} Expertise
+                    .controls
+                      = f.text_area :expertise_list, :rows => '3', :class => '.input-xlarge ui-autocomplete-input', "data-url" => "#{autocomplete_expertise_name_profiles_path}"
+                      %p.help-block Expertise are comma seperated.
+                  .form-actions
+                    = hidden_field_tag :value, 'profile info'
+                    = f.submit "Save changes", :class => "btn btn-primary"
+
+  :javascript
+    $(function() {
+    //-------------------ajax autocomplete multiple values---------------------
+      function split( val ) {
+        return val.split( /,\s*/ );
+      }
+      function extractLast( term ) {
+        return split( term ).pop();
+      }
+      var url = "#{autocomplete_interest_name_profiles_path}";
+      $( ".ui-autocomplete-input" )
+        // don't navigate away from the field on tab when selecting an item
+        .bind( "keydown", function( event ) {
+          url = $( this ).data('url');
+          if ( event.keyCode === $.ui.keyCode.TAB &&
+              $( this ).data( "autocomplete" ).menu.active ) {
+            event.preventDefault();
+          }
+        })
+        .autocomplete({
+          source: function( request, response ) {
+            $.getJSON( url, {
+              term: extractLast( request.term )
+            }, response );
+          },
+          search: function() {
+            // custom minLength
+            var term = extractLast( this.value );
+            if ( term.length < 2 ) {
+              return false;
+            }
+          },
+          focus: function() {
+            // prevent value inserted on focus
+            return false;
+          },
+          select: function( event, ui ) {
+            var terms = split( this.value );
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push( ui.item.value );
+            // add placeholder to get the comma-and-space at the end
+            terms.push( "" );
+            this.value = terms.join( ", " );
+            return false;
+          }
+        });
+
+
+      //------------------ajax selectmenu for states-------------------
+
+        $("#profile_country").change(function(){
+            $.get("#{states_of_country_path}", { country_code: $(this).val()}, function(data) {
+              $("#profile_state").html('');
+              if(data.length > 0) {
+                $.each(data, function(index, val) {
+                  $("#profile_state").append("<option value=" +val[1] + ">" +val[0] + "</option>")
+                });
+              } else {
+                $("#profile_state").append("<option value=''>No States Available</option>")
+              }
+              
+            });
+        });
+    }); 
+  

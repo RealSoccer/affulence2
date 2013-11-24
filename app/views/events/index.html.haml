@@ -1,0 +1,169 @@
+.row
+  .span8
+    #myCarousel.carousel.slide
+      / Carousel items
+      .carousel-inner
+        - @featured_events.each do |event|
+          .item{:class => "#{'active' if (@featured_events.index(event) == 0)}"}
+            = event_image(event.promotion,:carousel) #display_image(event.promotion.photos)
+            .carousel-caption
+              %h4= event.title
+              %p #{event_description(event.description)} ... #{link_to 'More Info', event_path(event.id)}
+      / carousel-inner
+      / Carousel nav
+      %a.carousel-control.left{"data-slide" => "prev", :href => "#myCarousel"} ‹
+      %a.carousel-control.right{"data-slide" => "next", :href => "#myCarousel"} ›
+    / carousel
+  / span8
+  .span4
+    %h1 Affluence Events
+    %h6 Unparalleled Access Across The Globe
+    %br/
+    %p Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+    %br/
+    %p
+      %a.btn.btn-primary{"data-toggle" => "modal", :href => "#event-schedule", :id => 'see_schedule' } See Schedule
+  / span 3
+  / row
+
+%h1 Current Events
+%br/
+.row
+  - display_free_modal = (current_user.plan == 'free' ? true : false)
+  - @events.each do |event|
+  - event_div_id = (current_user.plan == 'free' ? 'register-div' : "event#{event.id}-register")
+    .span4
+      .thumbnail
+        %div
+          = event_image(event.promotion, :normal)#display_image(event.promotion.photos)
+          .caption{:style => "overflow: hidden; height: 132px;"}
+            %h5= event.title
+            %p= event_description(event.description,145)
+        .caption
+          %p
+            %a.btn.btn-success{"data-toggle" => "modal", :href => "##{event_div_id}", :id => "event_#{event.id}", :class => "event-register-button"}
+              %i.icon-pencil.icon-white
+              Register
+            %a.btn.btn-small.btn-info{:href => event_path(event.id)}
+              %i.icon-info-sign.icon-white
+              More Info
+    = render :partial => 'event_registration', :locals => {:event => event,
+    :display_free_modal => display_free_modal,:event_div_id => event_div_id}
+    - display_free_modal =  false
+.row
+  .span{:style => "float:right;"}
+    = paginate @events, theme: "bootstrap"
+
+%h1 Past Events
+%br/
+.row
+  - @past_events.each do |event|
+    .span3
+      .thumbnail
+        = event_image(event.promotion, :normal)
+        .caption
+          %h5= event.title
+          %p= event_description(event.description,80)
+/ row
+%hr
+  / Register Modal
+  #premium-sign-up.modal.hide.fade{:style => "display: none; "}
+    .modal-header.well
+      %a.close{"data-dismiss" => "modal", :href => ""} ×
+      %h2 Become a Premium Member
+      %p
+        Make Connections, Send Messages, Post Photo's, take advantage of
+        %strong Affluence Offerings
+        and
+        %strong Affluence Events
+        and use the
+        = succeed "." do
+          %strong Affluence Concierge
+    .modal-body
+      %form.form-horizontal
+        %fieldset
+          .control-group
+            %label.control-label{:for => "input01"} Name
+            .controls
+              %input#input01.input-xlarge{:placeholder => "Blake Macleod", :type => "text"}
+          .control-group
+            %label.control-label Plan
+            .controls
+              %label.radio
+                %input#optionsRadios2{:checked => "", :name => "optionsRadios", :type => "radio", :value => "option1"}
+                  Monthly - $50 per Month
+              %label.radio
+                %input#optionsRadios3{:name => "optionsRadios", :type => "radio", :value => "option2"}
+                  Yearly - $450 per Year
+                  %em
+                    %strong Save 25%
+          %hr.zero
+            .control-group
+              %label.control-label{:for => "input04"} Credit Card
+              .controls
+                %input#input01.input-xlarge{:type => "text"}
+            .control-group
+              %label.control-label{:for => "input05"} Exp.
+              .controls
+                %select.span2
+                  %option January
+                  %option February
+                  %option March
+                  %option April
+                  %option May
+                %select.span1
+                  %option 1
+                  %option 2
+                  %option 3
+                  %option 4
+                  %option 5
+            .control-group
+              %label.control-label{:for => "input06"} Billing Zip
+              .controls
+                %input#input06.input-xlarge.span2{:type => "text"}
+            .form-actions
+              %button.btn.btn-primary{:type => "submit"} Subscribe
+  / End Register Modal
+  / Schedule Modal
+  #event-schedule.modal.hide.fade{:style => "display: none; "}
+
+-content_for :javascripts do
+  :javascript
+    $(function () {
+      $('#myCarousel').carousel()
+    }),
+        $('#event-schedule').on('show', function () {
+          $.ajax({
+          url: "/events/events_schedules",
+          data:'promotion=event',
+          //async: false,
+          success:function(data){
+            $('#event-schedule').html(data);
+            //alert('Load was performed.');
+          },
+          dataType:'html'
+          });
+        })
+- if current_user.plan == 'free'
+  :javascript
+    $('.event-register-button').click(function(){
+      var event_id = this.id.split('_')[1]
+      //alert(event_id) ;
+      $.ajax({
+                    url: "/promotions/"+event_id+"/become_premium_member",
+                    data:'promotion=event',
+                    //async: false,
+                    success:function(data){
+                      $('#register-div').html(data);
+                      //alert('Load was performed.');
+                    },
+                    dataType:'html'
+                    });
+      //$('#register-div').modal('show');
+    });
+
+
+
+
+
+

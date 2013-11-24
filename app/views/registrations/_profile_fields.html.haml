@@ -1,0 +1,14 @@
+%legend
+  %h6 Who You Are
+.control-group
+  = f.label('Name', :class=> "control-label", :for => "")
+  .controls
+    = f.text_field :first_name, :class => 'input span2 user_fields', :placeholder => "First"
+    = f.text_field :last_name, :class => 'input span2 user_fields', :placeholder => "Last"
+.control-group
+  %label.control-label{:for => "select01"} Location
+  .controls
+    = f.select(:country, Carmen.countries,{}, {:class => "span2 user_fields", :id => "select01"})
+    = f.text_field :city, :class => 'input span2 user_fields', :placeholder => "City"
+    = f.hidden_field :invitation_source, :value => params[:invitation_source],:class => 'input span2 user_fields'
+

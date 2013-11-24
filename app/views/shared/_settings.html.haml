@@ -1,0 +1,49 @@
+.span3
+  .well
+    %ul.nav.nav-list#settings
+      %li.nav-header Account Settings
+      - if profiles? &&  !profiles_privacy?
+        %li
+          %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseOne" }
+            %i.icon-home>
+            Profile Info
+        %li
+          %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseTwo" }
+            %i.icon-shopping-cart>
+            Billing Info
+        %li
+          %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseThree"}
+            %i.icon-envelope>
+            Notifications
+        %li
+          %a.accordion-toggle{"data-parent" => "#accordion2", "data-toggle" => "collapse", :href => "#collapseFour"}
+            %i.icon-lock>
+            Change Password
+      - else
+        %li{:class => "#{'active' if profiles_edit?}"}
+          %a{ :href => "#{edit_profile_path(current_user.permalink, :value => 'profile info')}" }
+            %i.icon-home>
+            Profile Info
+        %li
+          %a{ :href => "#{edit_profile_path(current_user.permalink, :value => 'billing info')}" }
+            %i.icon-shopping-cart>
+            Billing Info
+        %li
+          %a{ :href => "#{edit_profile_path(current_user.permalink, :value => 'notifications')}" }
+            %i.icon-envelope>
+            Notifications
+        %li
+          %a{ :href => "#{edit_profile_path(current_user.permalink, :value => 'change password')}" }
+            %i.icon-lock>
+            Change Password
+      %li.nav-header Privacy Settings
+      %li{:class => "#{'active' if profiles_privacy?}"}
+        %a{:href => "#{edit_privacy_profiles_path}"}
+          %i.icon-lock>
+          Privacy
+      %li.nav-header Order History
+      %li{:class => "#{'active' if orders?}"}
+        %a{:href => orders_path}
+          %i.icon-gift>
+          Orders
+/ span3

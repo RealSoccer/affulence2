@@ -1,0 +1,145 @@
+.span9
+  .row
+    .span5
+      %h2 Messages
+    .span4
+      %p.pull-right
+      .span4
+        .btn-group.pull-right{"data-toggle" => "buttons-radio"}
+          = link_to 'inbox', user_conversations_path("saved" => false), {:class => "conversations_type btn btn-small btn-primary #{@searched ? '' : !@archived ? 'active' : ''}"}
+          = link_to 'archived', user_conversations_path("saved" => true), {:class => "conversations_type btn btn-small btn-primary #{@archived ? 'active' : ''}"}
+        %a.btn.btn-primary{"data-toggle" => "modal", :href => "#new-message", :id => "conversation_#{current_user.id}", :class => "conversation-register-button"}
+          %i.icon-pencil.icon-white
+          New Message
+  = form_tag user_conversations_path, {:method => :get, :id => "search"  } do
+    = text_field_tag :search, params[:search], :placeholder => "Search ... ", :id => 'term', :class => "input-xlarge span7", :size => "20x1"
+    = submit_tag "search", :class => "btn"
+
+
+  -unless @conversations.blank?
+    - @conversations.each_with_index do |conversation, index|
+      - unless conversation.messages.blank?
+        - message = conversation.messages.last
+        .accordion{:id => "accordion_conversation_#{index}"}
+          .accordion-group
+            .accordion-heading
+              .span9
+                .span1
+                .span5
+                  %a.accordion-toggle{"data-parent" => "#accordion_conversation_#{index}", "data-toggle" => "collapse", :href => "#collapse_conversation_#{index}"}
+                    = message.subject 
+                .span3.pull-right
+                  = time_ago_in_words(message.updated_at) + " ago"
+            .accordion-body.collapse{:id => "collapse_conversation_#{index}"}
+              .accordion-inner
+                =render :partial => "conversations/last_message", :locals => {:conversation => conversation, :archived => @archived, :searched => @searched, :conversation_index => index}
+    = paginate(@conversations, :theme => "bootstrap")
+
+  -else
+    %p.no-messages No Messages
+
+- if Ability.new(current_user).cannot?(:all,:conversation)
+  #new-message.modal.hide.fade.in{:style => "display: none;"}
+  :javascript
+     $('.conversation-register-button').click(function(){
+       var user_id = this.id.split('_')[1]
+       //alert(event_id) ;
+       $.ajax({
+                     url: "/promotions/"+user_id+"/become_premium_member",
+                     data:'promotion=conversation',
+                     //async: false,
+                     success:function(data){
+                       $('#new-message').html(data);
+                       //alert('Load was performed.');
+                     },
+                     dataType:'html'
+                     });
+       //$('#register-div').modal('show');
+     });
+- else
+  #new-message.modal.hide.fade.in{:style => "display: none;"}
+    .modal-header
+      %a.close{"data-dismiss" => "modal", :href => "#"} ×
+      %h3 New Message
+    .modal-body
+      = form_for @conversation, :url => user_conversations_path(current_user), :html => { :class => "form-horizontal" } do |f|
+        %fieldset
+          = f.fields_for :messages, :html => { :multipart => true } do |x|
+            .control-group
+              %label.control-label{:for => "fileInput"} To
+              .controls
+                %ul#msg_to{:name => "recipient_profile_id"}
+            .control-group
+              %label.control-label{:for => "fileInput"} Subject
+              .controls
+                = x.text_field :subject, :placeholder => "Subject ....", :class => "input ", :rows => "5", :style => "width:370px;"
+            .control-group
+              %label.control-label{:for => "fileInput"} Body
+              .controls
+                = x.text_area :body, :placeholder => "Write message ....", :class => "input ", :rows => "5", :style => "width:370px;"
+                = hidden_field_tag :conversation_recipient_profile_name, "", :class => "input "
+          .control-group
+            .controls
+              = f.submit "Send Message", :class => "btn btn-primary"
+
+  -content_for :javascripts do
+    =javascript_include_tag("tag-it/tag-it")
+    :javascript
+      $(function() {
+        var to_member = #{params[:to].present?};
+        var recipient_name = "#{@recipient ? @recipient.profile.name : ''}"
+        var recipient_profile_id = "#{@recipient? @recipient.profile.id : ''}"
+        var profile_id;
+        $("#msg_to").tagit({
+          itemName: 'conversation',
+          tagSource: function(request,response){
+            $.ajax({
+              url: "#{autocomplete_profile_full_name_user_conversations_path(current_user)}",
+              dataType: "json",
+
+              data: {
+                term: request.term
+              },
+              beforeSend: function(jqXHR, settings){
+                $(".new_msg_form").find(".ajax-loader").fadeIn();
+              },
+              success: function( data ) {
+                $(".new_msg_form").find(".ajax-loader").fadeOut();
+                response($.map(data, function(item){
+                  profile_id = item.id
+                  if($("#msg_to").children().length < 2){
+                    return {
+                      label: item.value,
+                      value: item.value,
+                      profile_id: item.id
+
+                    }
+                  }
+                }))
+              }
+            });
+          },
+          fieldName: 'recipient_profile_id',
+          onTagAdded: function(el) {
+            $(el).find('input').val($(el).attr('data-profile_id'));
+            var user_name = el.text().substring(0, el.text().length-1);
+            $("#conversation_recipient_profile_name").val(user_name);
+            $("#msg_to .tagit-new input").attr("disabled", "true");
+            $("#conversation_messages_attributes_0_subject").focus();
+            $("#msg_to .tagit-new input").css('display', 'none');
+
+
+          },
+          onTagRemoved: function(el) {
+            $("#msg_to .tagit-new input").css('display', 'block');
+            $("#msg_to .tagit-new input").removeAttr("disabled");
+          },
+          select: true,
+          allowSpaces: true,
+          caseSensitive: false
+        });
+        if(to_member){
+          $("#msg_to").prepend("<li class=\"alert-info alert\">"+recipient_name +"<a class=\"close\">x</a><input type=\"hidden\" style=\"display:none;\" value=\""+recipient_profile_id+"\" name=\"conversation[recipient_profile_id][]\"></li>")
+        }
+      });
+

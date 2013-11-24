@@ -1,0 +1,10 @@
+%li.span1
+  %div
+    .thumbnail-div
+      %a.image-a-link.thumbnail{"data-original-title" => "#{member.profile.full_name}", "data-placement" => "bottom", :href => "#{profile_path(member.permalink)}", :rel => "tooltip"}
+        = image_tag display_image(member.profile.photos, :thumb)
+        - if member.verified?
+          %span.image-link-span
+        - unless @total.nil?
+          %span.tickets-link-span
+            = "+#{@total}"

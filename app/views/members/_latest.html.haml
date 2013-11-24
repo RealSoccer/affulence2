@@ -1,0 +1,10 @@
+- @latest_members.each do |member|
+  = render :partial => 'shared/member', :locals => {:member => member}
+:javascript
+  $(function () {
+    $('a[rel=tooltip]').tooltip({
+        live: true
+    });
+  });
+
+

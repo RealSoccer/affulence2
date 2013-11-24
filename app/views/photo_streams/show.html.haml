@@ -1,0 +1,54 @@
+= csrf_meta_tag
+
+.span9
+  .row
+    .span7
+      %h1
+        %small= @photo_stream.profile.user.name+"'s" if !@photo_stream.profile.user.name.blank?
+        = @photo_stream.title
+  / row
+
+  .row
+    - if current_user == @photo_stream.profile.user
+      .span8
+        = stylesheet_link_tag('jquery.fileupload-ui')
+      
+        = javascript_include_tag 'jquery.fileupload', 'jquery.fileupload-ui'
+        %script{:charset => "utf-8", :type => "text/javascript"}
+          $(function () {
+          $('.upload').fileUploadUI({
+          uploadTable:$('.upload_files'),
+          downloadTable:$('.download_files'),
+          buildUploadRow:function (files, index) {
+          var file = files[index];
+          return $('<tr><td>' + file.name + '<\/td>' +
+          '<td class="file_upload_progress"><div><\/div><\/td>' +
+          '<td class="file_upload_cancel">' +
+          '<div class="ui-state-default ui-corner-all ui-state-hover" title="Cancel">' +
+          '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
+          '<\/div><\/td><\/tr>');   },
+          buildDownloadRow:function (file) {
+          return $('<tr><td><a href="' + file.pic_path + '"> <img src="' + file.name + '"></a><a href="/users/#{current_user.id}/photo_streams/#{4}/photo/' + file.id + '" data-method="delete" data-confirm="Are you sure?"method="delete">X</a>  <\/td><\/tr>');
+          }
+          });
+          });
+        .files
+          = form_for Photo.new, :url => user_photo_stream_create_photo_path(current_user.id, @photo_stream), :html => {:class => "upload", :multipart => true} do |f|
+            %input{:multiple => "", :name => "upload[image]", :type => "file"}
+              %div Click here to upload Images
+          %table.upload_files
+          %table.download_files
+
+
+      
+
+  %ul.thumbnails
+    - @photo_stream.photos.reverse.each do |photo|
+      %li.span3
+        %a.thumbnail{:href => "#"}
+          = image_tag photo.image.url(:medium)
+         
+        - if current_user == @photo_stream.profile.user
+          = link_to 'X', "/users/" + current_user.permalink + "/photo_streams/" + @photo_stream.id.to_s + "/photo/" + photo.id.to_s, :method => 'delete'
+     
+  

@@ -1,0 +1,48 @@
+.hero-unit
+  %h1 Exclusive Access
+  %p Gain Access to the most Prestigious Events, Meet some of the world's most Powerful People and gain Exclusive Benefits for becoming a member of Affluence.
+  %p
+    = link_to( 'Register Now', new_user_registration_path, :class => "btn btn-primary btn-large")
+.row
+  .span12
+    %h2{:style => "text-align:center"}
+      Bridge the Gap
+      %hr.soften.zero
+.row
+  .span4
+    %h3 Socialize
+    %p Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+  .span4
+    %h3 Access
+    %p Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+  .span4
+    %h3 Benefits
+    %p Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+/ row
+.page-header
+  %h1
+    %small upcoming
+    Events
+.row#latest_events
+  #spinner
+    = image_tag 'ajax-loader.gif', :class => 'ajax-loader'
+    %p Loading....
+/ row
+.page-header
+  %h1
+    %small top
+    Offers
+.row
+  - @latest_offers.each do |offer|
+    .span3
+      .thumbnail
+        = image_tag offer.promotion.photos.first.image unless offer.promotion.nil?
+        .caption
+          %h5= "#{offer.title[0..30]}"
+          %p= "#{offer.description[0..48]}..."
+/ row
+-content_for :javascripts do
+  :javascript
+    $(function () {
+      $("#latest_events").load("#{landing_page_events_events_path}");
+    });

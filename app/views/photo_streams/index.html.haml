@@ -1,0 +1,22 @@
+.span9
+  = form_for PhotoStream.new, :url => user_photo_streams_path(current_user.permalink) do |f|
+    = text_field 'photo_stream', 'title', :value => '', :placeholder => 'Untitled Album'
+    = f.submit "Create Album", :class => 'btn-primary btn'
+.span9
+  %ul.thumbnails
+    - @photo_streams.reverse.each do |album|
+      %li.span3{:style => 'min-height:220px'}
+        = link_to user_photo_stream_path(current_user.permalink, album.id) do
+          - photos = album.photos
+          %h3
+            = album.title
+          - if photos.blank?
+            = image_tag 'http://placehold.it/260x260'
+          - else
+            = image_tag photos.last.image.url(:medium)
+          %br
+          = photos.count
+          Photos
+
+
+ 
